@@ -19,18 +19,22 @@ window.addEventListener('load',function(){
     class Player{
         constructor(game){
             this.game = game;
+            this.spritewidth = 128;
+            this.spriteheight = 126; 
+            this.frameX = 0;
+            this.frameY = 0;
             this.x = 10;
             this.y = 70;
-            this.width = 50;
-            this.height = 40;
+            this.width = this.spritewidth;
+            this.height = this.spriteheight;
             this.speedX = 0;
             this.speedY = 0;
             this.topspeed = 3;
             this.topmargin = 45;
+            this.image = document.getElementById("player");
         }
         draw(context){
-            ctx.fillStyle = 'red';
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            context.drawImage(this.image, this.frameX * this.spritewidth, this.frameY * this.spriteheight, this.spritewidth, this.spriteheight, this.x, this.y, this.width, this.height);
         }
         setSpeed(speedX, speedY){
             this.speedX = speedX;
