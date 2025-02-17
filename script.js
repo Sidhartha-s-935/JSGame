@@ -8,6 +8,7 @@ window.addEventListener('load',function(){
         constructor(game){
             this.game = game;
             window.addEventListener('keydown', (e) => {
+                console.log(e.key);
                 this.game.lastkey = e.key;
             });
             window.addEventListener('keyup', (e) => {
@@ -23,7 +24,6 @@ window.addEventListener('load',function(){
             this.spriteheight = 126; 
             this.frameX = 0;
             this.frameY = 0;
-            this.lastYframe = undefined;
             this.maxframeX = 5;
             this.maxframeY = 7;
             this.x = 10;
@@ -36,6 +36,7 @@ window.addEventListener('load',function(){
             this.topmargin = 45;
             this.image = document.getElementById("player");
             this.moving = false;
+            this.attacking = false;
         }
         draw(context){
             context.drawImage(this.image, this.frameX * this.spritewidth, this.frameY * this.spriteheight, this.spritewidth, this.spriteheight, this.x, this.y, this.width, this.height);
@@ -44,39 +45,64 @@ window.addEventListener('load',function(){
             this.speedX = speedX;
             this.speedY = speedY;
         }
+        setFrame(frameY,moving){
+            this.frameY = frameY;
+            this.moving = moving;
+        }
+        setAttack(frameY,attacking){
+            this.frameY = frameY;
+            this.attacking = attacking;
+        }
         update(){
-            if(this.game.lastkey === 'ArrowUp'){
+            //Attacking
+            if(this.game.lastkey === 'k'){
+                if (this.frameY === 0){
+                    this.setFrame(4,true);
+                }else if (this.frameY === 2){
+                    this.setFrame(6,true);
+                }else if (this.frameY === 1){
+                    this.setFrame(5,true);
+                }else if (this.frameY === 3){
+                    this.setFrame(7,true);
+                }
+            }
+            if (this.game.lastkey === 'Rk'){
+                if (this.frameY === 0){
+                    this.setFrame(4,true);
+                }else if (this.frameY === 2){
+                    this.setFrame(6,true);
+                }else if (this.frameY === 1){
+                    this.setFrame(5,true);
+                }else if (this.frameY === 3){
+                    this.setFrame(7,true);
+                }
+            }
+
+            //Moving
+            if(this.game.lastkey === 'w'){
                 this.setSpeed(0, -this.topspeed);
-                this.frameY = 0;
-                this.moving = true;
-            }else if(this.game.lastkey === 'RArrowUp'){
+                this.setFrame(0,true);
+            }else if(this.game.lastkey === 'Rw'){
                 this.setSpeed(0, 0);
-                this.moving = false;
-            }else if(this.game.lastkey === 'ArrowDown'){
+                this.setFrame(0,false);
+            }else if(this.game.lastkey === 's'){
                 this.setSpeed(0, this.topspeed);
-                this.frameY = 2;
-                this.moving = true;
-            }else if(this.game.lastkey === 'RArrowDown'){
+                this.setFrame(2,true);
+            }else if(this.game.lastkey === 'Rs'){
                 this.setSpeed(0, 0);
-                this.moving = false;
-            }else if(this.game.lastkey === 'ArrowLeft'){
+                this.setFrame(2,false);
+            }else if(this.game.lastkey === 'a'){
                 this.setSpeed(-this.topspeed, 0);
-                this.frameY = 1;
-                this.moving = true;
-            }else if(this.game.lastkey === 'RArrowLeft'){
+                this.setFrame(1,true);
+            }else if(this.game.lastkey === 'Ra'){
                 this.setSpeed(0, 0);
-                this.frameY = 1;
-                this.moving = false;
-            }else if(this.game.lastkey === 'ArrowRight'){
+                this.setFrame(1,false);
+            }else if(this.game.lastkey === 'd'){
                 this.setSpeed(this.topspeed, 0);
-                this.frameY = 3;
-                this.moving = true;
-            }else if(this.game.lastkey === 'RArrowRight'){
+                this.setFrame(3,true);
+            }else if(this.game.lastkey === 'Rd'){
                 this.setSpeed(0, 0);
-                this.frameY = 3;
-                this.moving = false;
-            }else{
-                this.setSpeed(0, 0);
+                this.setFrame(3,false);
             }
             this.x += this.speedX;
             this.y += this.speedY;
@@ -88,12 +114,12 @@ window.addEventListener('load',function(){
                 this.x = this.game.width-this.width;
             }
             // Check if player is out of bounds Y value
-            if (this.y < this.topmargin){
-                this.y = this.topmargin;
-            }
-            if(this.y > this.game.height-this.height){
-                this.y = this.game.height-this.height;
-            }
+            // if (this.y < this.topmargin){
+            //     this.y = this.topmargin;
+            // }
+            // if(this.y > this.game.height-this.height){
+            //     this.y = this.game.height-this.height;
+            // }
             //Animation
             if(this.frameX < this.maxframeX && this.moving){
                 this.frameX++;
@@ -105,6 +131,29 @@ window.addEventListener('load',function(){
     }
 
     class Enemy{
+        constructor(game){
+            this.game = game;
+            this.x = undefined;
+            this.y = undefined;
+            this.spritewidth = undefined;
+            this.spriteheight = undefined;
+            this.width = this.spritewidth;
+            this.height = this.spriteheight;
+            this.frameX = undefined;
+            this.frameY = undefined;
+            this.maxframeX = undefined;
+            this.maxframeY = undefined;
+            this.speedX = undefined;
+            this.speedY = undefined;
+            this.topspeed = 1;
+            this.topmargin = 45;
+            // this.image = document.getElementById("enemy");
+            this.dead = false;
+        }
+        draw(context){
+            context.drawImage(this.image, this.frameX * this.spritewidth, this.frameY * this.spriteheight, this.spritewidth, this.spriteheight, this.x, this.y, this.width, this.height);
+        }
+
 
     }
 

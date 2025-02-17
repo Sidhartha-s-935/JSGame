@@ -12,8 +12,8 @@ html, body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: url('./Level/Battleground2/Bright/Battleground2.png') no-repeat center center;
-    background-size: cover; 
+    /* background: url('./Level/Battleground2/Bright/Battleground2.png') no-repeat center center;
+    background-size: cover;  */
 }
 
 .player{
