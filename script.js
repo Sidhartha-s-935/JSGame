@@ -22,9 +22,9 @@ window.addEventListener('load',function(){
             this.game = game;
             this.spritewidth = 128;
             this.spriteheight = 126; 
-            this.frameXmove = 0;
-            this.frameXattack = 0;
+            this.frameX = 0;
             this.frameY = 0;
+            this.frameXattack = 0;
             this.maxframeXmove = 8;
             this.maxframeY = 7;
             this.maxframeXattack = 5;
@@ -60,12 +60,16 @@ window.addEventListener('load',function(){
             if(this.game.lastkey === 'k'){
                 if (this.frameY === 0){
                     this.setAttack(4,true);
+                    this.moving = false;
                 }else if (this.frameY === 2){
                     this.setAttack(6,true);
+                    this.moving = false;
                 }else if (this.frameY === 1){
                     this.setAttack(5,true);
+                    this.moving = false;
                 }else if (this.frameY === 3){
                     this.setAttack(7,true);
+                    this.moving = false;
                 }
             }
             if (this.game.lastkey === 'Rk'){
@@ -124,13 +128,13 @@ window.addEventListener('load',function(){
             // }
             //Movement Animation
             if(this.frameX < this.maxframeXmove && this.moving){
-                this.frameXmove++;
+                this.frameX++;
             }
             else{
-                this.frameXmove = 0;
+                this.frameX = 0;
             }
             //Attack Animation
-            if(this.frameX < this.maxframeXattack && this.attacking){
+            if(this.frameXattack < this.maxframeXattack && this.attacking){
                 this.frameXattack++;
             }
             else{
@@ -141,27 +145,65 @@ window.addEventListener('load',function(){
     }
 
     class Enemy{
-        constructor(game){
+        constructor(game,player){
             this.game = game;
-            this.x = undefined;
-            this.y = undefined;
-            this.spritewidth = undefined;
-            this.spriteheight = undefined;
+            this.player = player;
+            this.spritewidth = 128;
+            this.spriteheight = 126; 
+            this.frameX = 0;
+            this.frameY = 0;
+            this.frameXattack = 0;
+            this.maxframeXmove = 8;
+            this.maxframeY = 7;
+            this.maxframeXattack = 5;
+            this.x = 10;
+            this.y = 70;
             this.width = this.spritewidth;
             this.height = this.spriteheight;
-            this.frameX = undefined;
-            this.frameY = undefined;
-            this.maxframeX = undefined;
-            this.maxframeY = undefined;
-            this.speedX = undefined;
-            this.speedY = undefined;
+            this.speedX = 0;
+            this.speedY = 0;
             this.topspeed = 1;
             this.topmargin = 45;
-            // this.image = document.getElementById("enemy");
+            this.image = document.getElementById("enemy");
+            this.moving = false;
+            this.attacking = false;
             this.dead = false;
         }
         draw(context){
             context.drawImage(this.image, this.frameX * this.spritewidth, this.frameY * this.spriteheight, this.spritewidth, this.spriteheight, this.x, this.y, this.width, this.height);
+        }
+        setSpeed(speedX, speedY){
+            this.speedX = speedX;
+            this.speedY = speedY;
+        }
+        setFrame(frameY,moving){
+            this.frameY = frameY;
+            this.moving = moving;
+        }
+        setAttack(frameY,attacking){
+            this.frameY = frameY;
+            this.attacking = attacking;
+        }
+        update(){
+            if (this.player.x > this.x-3){
+                this.setSpeed(this.topspeed, 0);
+                this.setFrame(3,true);
+            }
+            else if(this.player.x<this.x+3){
+                this.setSpeed(-this.topspeed,0);
+                this.setFrame(1,true);
+            }
+            else if (this.player.y>this.y-3){
+                this.setSpeed(0,this.topspeed);
+                this.setFrame(2,true);
+            }
+            else if (this.player.y<this.y+3){
+                this.setSpeed(0,-this.topspeed);
+                this.setFrame(0,true);
+            }
+            this.x += this.speedX;
+            this.y += this.speedY;
+
         }
 
 
@@ -174,16 +216,19 @@ window.addEventListener('load',function(){
             this.lastkey = undefined;
             this.input = new Input(this);
             this.player = new Player(this);
+            this.enemy = new Enemy(this,this.player);
         }
         render(context){
             this.player.draw(context);
             this.player.update();
+            this.enemy.draw(context);
+            this.enemy.update();
         }
     }
     
     const game = new Game(width, height);
     function animate(){
-        ctx.clearRect(0, 0, width, height);
+        ctx.clearRect(0,0,width,height);
         game.render(ctx);
         requestAnimationFrame(animate);
     }
