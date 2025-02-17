@@ -185,23 +185,23 @@ window.addEventListener('load',function(){
             this.attacking = attacking;
         }
         update(){
-            if (this.player.x > this.x-3){
+            if (this.player.x > this.x-8){
                 this.setSpeed(this.topspeed, 0);
                 this.setFrame(3,true);
             }
-            else if(this.player.x<this.x+3){
+            else if(this.player.x<this.x+8){
                 this.setSpeed(-this.topspeed,0);
                 this.setFrame(1,true);
             }
-            if (this.player.y>this.y-3){
+            this.x += this.speedX;
+            if (this.player.y>this.y-8){
                 this.setSpeed(0,this.topspeed);
                 this.setFrame(2,true);
             }
-            else if (this.player.y<this.y+3){
+            else if (this.player.y<this.y+8){
                 this.setSpeed(0,-this.topspeed);
                 this.setFrame(0,true);
             }
-            this.x += this.speedX;
             this.y += this.speedY;
 
         }
