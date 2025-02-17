@@ -22,10 +22,12 @@ window.addEventListener('load',function(){
             this.game = game;
             this.spritewidth = 128;
             this.spriteheight = 126; 
-            this.frameX = 0;
+            this.frameXmove = 0;
+            this.frameXattack = 0;
             this.frameY = 0;
-            this.maxframeX = 5;
+            this.maxframeXmove = 8;
             this.maxframeY = 7;
+            this.maxframeXattack = 5;
             this.x = 10;
             this.y = 70;
             this.width = this.spritewidth;
@@ -57,24 +59,24 @@ window.addEventListener('load',function(){
             //Attacking
             if(this.game.lastkey === 'k'){
                 if (this.frameY === 0){
-                    this.setFrame(4,true);
+                    this.setAttack(4,true);
                 }else if (this.frameY === 2){
-                    this.setFrame(6,true);
+                    this.setAttack(6,true);
                 }else if (this.frameY === 1){
-                    this.setFrame(5,true);
+                    this.setAttack(5,true);
                 }else if (this.frameY === 3){
-                    this.setFrame(7,true);
+                    this.setAttack(7,true);
                 }
             }
             if (this.game.lastkey === 'Rk'){
                 if (this.frameY === 0){
-                    this.setFrame(4,true);
+                    this.setAttack(4,false);
                 }else if (this.frameY === 2){
-                    this.setFrame(6,true);
+                    this.setAttack(6,false);
                 }else if (this.frameY === 1){
-                    this.setFrame(5,true);
+                    this.setAttack(5,false);
                 }else if (this.frameY === 3){
-                    this.setFrame(7,true);
+                    this.setAttack(7,false);
                 }
             }
 
@@ -120,13 +122,21 @@ window.addEventListener('load',function(){
             // if(this.y > this.game.height-this.height){
             //     this.y = this.game.height-this.height;
             // }
-            //Animation
-            if(this.frameX < this.maxframeX && this.moving){
-                this.frameX++;
+            //Movement Animation
+            if(this.frameX < this.maxframeXmove && this.moving){
+                this.frameXmove++;
             }
             else{
-                this.frameX = 0;
+                this.frameXmove = 0;
             }
+            //Attack Animation
+            if(this.frameX < this.maxframeXattack && this.attacking){
+                this.frameXattack++;
+            }
+            else{
+                this.frameXattack = 0;
+            }
+
         }
     }
 
