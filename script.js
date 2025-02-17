@@ -157,7 +157,7 @@ window.addEventListener('load',function(){
             this.maxframeY = 7;
             this.maxframeXattack = 5;
             this.x = 10;
-            this.y = 70;
+            this.y = 10;
             this.width = this.spritewidth;
             this.height = this.spriteheight;
             this.speedX = 0;
@@ -193,7 +193,7 @@ window.addEventListener('load',function(){
                 this.setSpeed(-this.topspeed,0);
                 this.setFrame(1,true);
             }
-            else if (this.player.y>this.y-3){
+            if (this.player.y>this.y-3){
                 this.setSpeed(0,this.topspeed);
                 this.setFrame(2,true);
             }
