@@ -13,8 +13,11 @@ export default class Game {
     }
 
     render(context) {
+        //Draw player and update
         this.player.draw(context);
         this.player.update();
+
+        //Draw enemy and update
         this.enemy.draw(context);
         this.enemy.update();
     }

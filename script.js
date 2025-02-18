@@ -8,7 +8,10 @@ const height = canvas.height;
 const game = new Game(width, height);
 
 function animate() {
+    //update player model to keep it from staying on screen
     ctx.clearRect(0, 0, width, height);
+
+    //render and animate sprites
     game.render(ctx);
     requestAnimationFrame(animate);
 }

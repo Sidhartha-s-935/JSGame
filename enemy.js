@@ -2,29 +2,37 @@ export default class Enemy {
     constructor(game, player) {
         this.game = game;
         this.player = player;
+
+        //sprite and anims
+        this.image = document.getElementById("enemy");
         this.spritewidth = 128;
         this.spriteheight = 126;
+        this.width = this.spritewidth;
+        this.height = this.spriteheight;
         this.frameX = 0;
         this.frameY = 0;
         this.frameXattack = 0;
+        this.maxframeXattack = 5;
         this.maxframeXmove = 8;
         this.maxframeY = 7;
-        this.maxframeXattack = 5;
+        
+
+        //positions and speed
         this.x = 10;
         this.y = 10;
-        this.width = this.spritewidth;
-        this.height = this.spriteheight;
         this.speedX = 0;
         this.speedY = 0;
-        this.topspeed = 1.5;  // Slightly faster movement
-        this.attackRange = 20; // Distance at which enemy attacks
-        this.image = document.getElementById("enemy");
+        this.topspeed = 1.5;  
+        this.attackRange = 20;
+        
+        //states
         this.moving = false;
         this.attacking = false;
         this.dead = false;
     }
 
     draw(context) {
+        //Model Draw
         let frameX = this.attacking ? this.frameXattack : this.frameX;
         context.drawImage(
             this.image,
@@ -39,37 +47,42 @@ export default class Enemy {
         );
     }
 
+    //update speed
     setSpeed(speedX, speedY) {
         this.speedX = speedX;
         this.speedY = speedY;
     }
-
+    //update frame
     setFrame(frameY, moving) {
         this.frameY = frameY;
         this.moving = moving;
     }
-
+    //update if attacking
     setAttack(frameY, attacking) {
         this.frameY = frameY;
         this.attacking = attacking;
     }
-
-    getDistanceToPlayer() {
+    //get distance from player
+    getDist() {
         return Math.sqrt((this.player.x - this.x) ** 2 + (this.player.y - this.y) ** 2);
     }
 
     update() {
-        let distance = this.getDistanceToPlayer();
+        let distance = this.getDist();
 
         // Attack if within range
         if (distance <= this.attackRange) {
             this.moving = false;
             this.attacking = true;
             
-            if (this.player.y < this.y) this.setAttack(4, true); // Attack up
-            else if (this.player.y > this.y) this.setAttack(6, true); // Attack down
-            else if (this.player.x < this.x) this.setAttack(5, true); // Attack left
-            else if (this.player.x > this.x) this.setAttack(7, true); // Attack right
+            // Attack up
+            if (this.player.y < this.y) this.setAttack(4, true); 
+            // Attack down
+            else if (this.player.y > this.y) this.setAttack(6, true); 
+            // Attack left
+            else if (this.player.x < this.x) this.setAttack(5, true); 
+            // Attack right
+            else if (this.player.x > this.x) this.setAttack(7, true); 
             
         } else {
             // Move towards player
@@ -83,9 +96,11 @@ export default class Enemy {
             this.y += Math.sin(angle) * this.topspeed;
 
             if (Math.abs(dx) > Math.abs(dy)) {
-                this.setFrame(dx > 0 ? 3 : 1, true); // Right or left
+                // Right or left
+                this.setFrame(dx > 0 ? 3 : 1, true); 
             } else {
-                this.setFrame(dy > 0 ? 2 : 0, true); // Down or up
+                // Down or up
+                this.setFrame(dy > 0 ? 2 : 0, true); 
             }
         }
 
