@@ -1,17 +1,21 @@
 import Game from './game.js';
 
 const canvas = document.getElementById("background");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 const ctx = canvas.getContext('2d');
-const width = canvas.width;
-const height = canvas.height;
 
-const game = new Game(width, height);
+const game = new Game(canvas);
+
+// Handle user input for attack
+window.addEventListener("keydown", (e) => {
+    if (e.key === "k") {
+        game.handleInput(e.key);
+    }
+});
 
 function animate() {
-    //update player model to keep it from staying on screen
-    ctx.clearRect(0, 0, width, height);
-
-    //render and animate sprites
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     game.render(ctx);
     requestAnimationFrame(animate);
 }

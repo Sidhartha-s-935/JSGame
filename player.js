@@ -1,111 +1,59 @@
-export default class Player {
+import Sprite from "./sprite.js";
+
+export default class Player extends Sprite {
     constructor(game) {
-        this.game = game;
+        super(game, "player", {
+            idle: { frames: 6 },
+            attack1: { frames: 4 },
+            attack2: { frames: 5 },
+            attack3: { frames: 4 },
+            hurt: { frames: 3 },
+            dead: { frames: 6 }
+        });
 
-        // Load animations with respective frame counts
-        this.sprites = {
-            idle: new Sprite("playerIdle", 6),   // 6 frames
-            attack1: new Sprite("playerAttack1", 4), // 4 frames
-            attack2: new Sprite("playerAttack2", 5), // 5 frames
-            attack3: new Sprite("playerAttack3", 4), // 4 frames
-            hurt: new Sprite("playerHurt", 3),   // 3 frames
-            dead: new Sprite("playerDead", 6)    // 6 frames
-        };
-
-        this.currentAnimation = "idle"; // Default animation
-        this.updateSprite();
-
-        this.setPosition();
-
+        this.x = this.game.width * 0.1;
+        this.y = this.game.height * 0.15;
         this.health = 100;
-        this.attacking = false;
-        this.turn = true; // Player starts first
-
-        // Animation variables
-        this.frameX = 0;
-        this.frameCounter = 0;
-        this.frameDelay = 5;
-
-        window.addEventListener("resize", () => this.setPosition());
+        this.isAttacking = false;
+        this.isHurt = false;
     }
 
-    updateSprite() {
-        this.sprite = this.sprites[this.currentAnimation];
-        this.width = this.sprite.spriteWidth;
-        this.height = this.sprite.spriteHeight;
-        this.maxFrameX = this.sprite.frameCount;
-    }
-
-    setPosition() {
-        this.x = window.innerWidth * 0.2;
-        this.y = window.innerHeight * 0.5 - this.height / 2;
-    }
-
-    draw(context) {
-        context.drawImage(
-            this.sprite.image,
-            this.frameX * this.sprite.spriteWidth,  
-            0,
-            this.sprite.spriteWidth,
-            this.sprite.spriteHeight,
-            this.x,
-            this.y,
-            this.width,
-            this.height
-        );
-
-        this.animate();
-    }
-
-    animate() {
-        this.frameCounter++;
-        if (this.frameCounter >= this.frameDelay) {
-            this.frameCounter = 0;
-            this.frameX++;
-
-            // Reset animation if it reaches the last frame
-            if (this.frameX >= this.maxFrameX) {
-                if (this.currentAnimation === "dead") return;
-                if (this.currentAnimation.startsWith("attack")) this.changeAnimation("idle");
-                if (this.currentAnimation === "hurt") this.changeAnimation("idle");
-                this.frameX = 0;
-            }
-        }
-    }
-
-    changeAnimation(animation) {
-        if (this.currentAnimation !== animation) {
-            this.currentAnimation = animation;
-            this.frameX = 0; // Reset animation
-            this.updateSprite();
+    update() {
+        if (this.health <= 0) {
+            this.setAnimation("dead");
+        } else if (this.isHurt) {
+            this.playAnimation();
+        } else if (this.isAttacking) {
+            this.playAnimation();
+        } else {
+            this.setAnimation("idle");
+            this.playAnimation();  
         }
     }
 
     attack() {
-        if (!this.turn) return; // Only attack when it's player's turn
+        if (this.health > 0 && this.game.turn === "player") {
+            const attacks = ["attack1", "attack2", "attack3"];
+            this.setAnimation(attacks[Math.floor(Math.random() * attacks.length)]);
+            this.isAttacking = true;
 
-        // Randomly choose an attack animation
-        const attacks = ["attack1", "attack2", "attack3"];
-        const randomAttack = attacks[Math.floor(Math.random() * attacks.length)];
-
-        this.changeAnimation(randomAttack);
+            setTimeout(() => {
+                this.isAttacking = false;
+                this.setAnimation("idle"); 
+                this.game.enemy.takeDamage(20);
+                this.game.turn = "enemy";
+            }, 500);
+        }
     }
 
     takeDamage(amount) {
         this.health -= amount;
+        this.setAnimation("hurt");
+        this.isHurt = true;
 
-        if (this.health <= 0) {
-            this.changeAnimation("dead");
-            this.health = 0;
-        } else {
-            this.changeAnimation("hurt");
-        }
-    }
-
-    updateTurn(isPlayerTurn) {
-        this.turn = isPlayerTurn;
-        if (!this.turn) {
-            this.changeAnimation("idle"); // Wait if it's not player's turn
-        }
+        setTimeout(() => {
+            this.isHurt = false;
+            if (this.health > 0) this.setAnimation("idle");
+        }, 300);
     }
 }
