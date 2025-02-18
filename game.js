@@ -7,6 +7,7 @@ export default class Game {
         this.width = width;
         this.height = height;
         this.lastkey = undefined;
+        this.keys = [];
         this.input = new Input(this);
         this.player = new Player(this);
         this.enemy = new Enemy(this, this.player);

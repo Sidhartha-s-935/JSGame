@@ -3,43 +3,50 @@ export default class Enemy {
         this.game = game;
         this.player = player;
 
-        //sprite and anims
-        this.image = document.getElementById("enemy");
-        this.spritewidth = 128;
-        this.spriteheight = 126;
-        this.width = this.spritewidth;
-        this.height = this.spriteheight;
-        this.frameX = 0;
-        this.frameY = 0;
-        this.frameXattack = 0;
-        this.maxframeXattack = 5;
-        this.maxframeXmove = 8;
-        this.maxframeY = 7;
-        
+        // Load sprite sheets
+        this.sprites = {
+            idle: document.getElementById("enemyIdle"),
+            attack: document.getElementById("enemyAttack"),
+            death: document.getElementById("enemyDeath")
+        };
+        this.currentSprite = this.sprites.idle;
 
-        //positions and speed
-        this.x = 10;
-        this.y = 10;
-        this.speedX = 0;
-        this.speedY = 0;
-        this.topspeed = 1.5;  
-        this.attackRange = 20;
-        
-        //states
-        this.moving = false;
+        // Sprite dimensions
+        this.spriteWidth = 128;
+        this.spriteHeight = 126;
+        this.width = this.spriteWidth;
+        this.height = this.spriteHeight;
+
+        // Dynamic position based on screen size
+        this.setPosition();
+
+        // State
+        this.health = 100;
         this.attacking = false;
-        this.dead = false;
+        this.turn = false;
+
+        // Animation
+        this.frameX = 0;
+        this.frameCounter = 0;
+        this.frameDelay = 5;
+        this.maxFrameX = 5;
+
+        // Listen for screen resize
+        window.addEventListener("resize", () => this.setPosition());
+    }
+
+    setPosition() {
+        this.x = window.innerWidth * 0.7;  // Enemy on the right side (70% of screen width)
+        this.y = window.innerHeight * 0.5 - this.height / 2;  // Center vertically
     }
 
     draw(context) {
-        //Model Draw
-        let frameX = this.attacking ? this.frameXattack : this.frameX;
         context.drawImage(
-            this.image,
-            frameX * this.spritewidth,
-            this.frameY * this.spriteheight,
-            this.spritewidth,
-            this.spriteheight,
+            this.currentSprite,
+            this.frameX * this.spriteWidth,
+            0,  // Assuming animation is in a single row
+            this.spriteWidth,
+            this.spriteHeight,
             this.x,
             this.y,
             this.width,
@@ -47,81 +54,41 @@ export default class Enemy {
         );
     }
 
-    //update speed
-    setSpeed(speedX, speedY) {
-        this.speedX = speedX;
-        this.speedY = speedY;
+    attack() {
+        if (!this.turn || this.attacking || this.health <= 0) return;
+        
+        this.attacking = true;
+        this.frameY = 4;  // Attack animation row
+        this.frameX = 0;
+        
+        setTimeout(() => {
+            this.player.takeDamage(15);
+            this.attacking = false;
+            this.frameY = 0;  // Return to idle
+            this.turn = false;
+            this.player.turn = true;  // Player's turn next
+        }, 500);
     }
-    //update frame
-    setFrame(frameY, moving) {
-        this.frameY = frameY;
-        this.moving = moving;
-    }
-    //update if attacking
-    setAttack(frameY, attacking) {
-        this.frameY = frameY;
-        this.attacking = attacking;
-    }
-    //get distance from player
-    getDist() {
-        return Math.sqrt((this.player.x - this.x) ** 2 + (this.player.y - this.y) ** 2);
+
+    takeDamage(amount) {
+        this.health -= amount;
+        if (this.health <= 0) {
+            this.frameY = 3;  // Death animation row
+            setTimeout(() => {
+                this.x = -9999;  // Remove from screen
+            }, 1000);
+        }
     }
 
     update() {
-        let distance = this.getDist();
-
-        // Attack if within range
-        if (distance <= this.attackRange) {
-            this.moving = false;
-            this.attacking = true;
-            
-            // Attack up
-            if (this.player.y < this.y) this.setAttack(4, true); 
-            // Attack down
-            else if (this.player.y > this.y) this.setAttack(6, true); 
-            // Attack left
-            else if (this.player.x < this.x) this.setAttack(5, true); 
-            // Attack right
-            else if (this.player.x > this.x) this.setAttack(7, true); 
-            
-        } else {
-            // Move towards player
-            this.moving = true;
-            this.attacking = false;
-            let dx = this.player.x - this.x;
-            let dy = this.player.y - this.y;
-            let angle = Math.atan2(dy, dx);
-
-            this.x += Math.cos(angle) * this.topspeed;
-            this.y += Math.sin(angle) * this.topspeed;
-
-            if (Math.abs(dx) > Math.abs(dy)) {
-                // Right or left
-                this.setFrame(dx > 0 ? 3 : 1, true); 
-            } else {
-                // Down or up
-                this.setFrame(dy > 0 ? 2 : 0, true); 
-            }
-        }
-
-        // Movement Animation
-        if (this.moving) {
-            if (this.frameX < this.maxframeXmove) {
+        this.frameCounter++;
+        if (this.frameCounter >= this.frameDelay) {
+            if (this.attacking && this.frameX < this.maxFrameX) {
                 this.frameX++;
-            } else {
-                this.frameX = 0;
+            } else if (!this.attacking) {
+                this.frameX = (this.frameX + 1) % 4;  // Loop idle animation
             }
-        } else {
-            this.frameX = 0;
-        }
-
-        // Attack Animation
-        if (this.attacking) {
-            if (this.frameXattack < this.maxframeXattack) {
-                this.frameXattack++;
-            } else {
-                this.frameXattack = 0;
-            }
+            this.frameCounter = 0;
         }
     }
 }

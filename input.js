@@ -1,14 +1,21 @@
-export default class Input{
-    constructor(game){
+export default class Input {
+    constructor(game) {
         this.game = game;
-        //Get key down (Press)
-        window.addEventListener('keydown', (e) => {
-            console.log(e.key);
-            this.game.lastkey = e.key;
+
+        // Initialize keys array in Game
+        this.game.keys = [];
+
+        // Listen for key presses
+        window.addEventListener("keydown", (e) => {
+            if (!this.game.keys.includes(e.key)) {
+                this.game.keys.push(e.key);
+            }
+            this.game.lastKey = e.key;
         });
-        //Get Key up (Release)
-        window.addEventListener('keyup', (e) => {
-            this.game.lastkey = 'R' + e.key;
+
+        // Listen for key releases
+        window.addEventListener("keyup", (e) => {
+            this.game.keys = this.game.keys.filter((key) => key !== e.key);
         });
     }
 }

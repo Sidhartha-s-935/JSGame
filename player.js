@@ -1,184 +1,111 @@
-export default class Player{
-        constructor(game){
-            this.game = game;
+export default class Player {
+    constructor(game) {
+        this.game = game;
 
-            //sprite and anims
-            this.image = document.getElementById("player");
-            this.spritewidth = 128;
-            this.spriteheight = 126; 
-            this.frameX = 0;
-            this.frameXattack = 0;
-            this.maxframeXmove = 8;
-            this.maxframeXattack = 5;
-            this.frameY = 0;
-            this.maxframeY = 7;
-            this.width = this.spritewidth;
-            this.height = this.spriteheight;
+        // Load animations with respective frame counts
+        this.sprites = {
+            idle: new Sprite("playerIdle", 6),   // 6 frames
+            attack1: new Sprite("playerAttack1", 4), // 4 frames
+            attack2: new Sprite("playerAttack2", 5), // 5 frames
+            attack3: new Sprite("playerAttack3", 4), // 4 frames
+            hurt: new Sprite("playerHurt", 3),   // 3 frames
+            dead: new Sprite("playerDead", 6)    // 6 frames
+        };
 
-            //position and speed
-            this.x = 10;
-            this.y = 70;
-            this.speedX = 0;
-            this.speedY = 0;
-            this.topspeed = 4;
-            this.topmargin = 200;
-            
-            //states
-            this.moving = false;
-            this.attacking = false;
-        }
-        draw(context){
-            //Model Draw
-            context.drawImage(
-                this.image, 
-                this.frameX * this.spritewidth,
-                this.frameY * this.spriteheight, 
-                this.spritewidth, this.spriteheight, 
-                this.x, 
-                this.y, 
-                this.width, 
-                this.height
-            );
-        }
+        this.currentAnimation = "idle"; // Default animation
+        this.updateSprite();
 
-        //update speed
-        setSpeed(speedX, speedY){
-            this.speedX = speedX;
-            this.speedY = speedY;
-        }
-        //update frame
-        setFrame(frameY,moving){
-            this.frameY = frameY;
-            this.moving = moving;
-        }
-        //update if attacking
-        setAttack(frameY,attacking){
-            this.frameY = frameY;
-            this.attacking = attacking;
-        }
+        this.setPosition();
 
-        update(){
+        this.health = 100;
+        this.attacking = false;
+        this.turn = true; // Player starts first
 
-            //Attacking
-            if(this.game.lastkey === 'k'){
-                //Attack up
-                if (this.frameY === 0){
-                    this.setAttack(4,true);
-                    this.moving = false;
-                }
-                //Attack down
-                else if (this.frameY === 2){
-                    this.setAttack(6,true);
-                    this.moving = false;
-                }
-                //Attack left
-                else if (this.frameY === 1){
-                    this.setAttack(5,true);
-                    this.moving = false;
-                }
-                //Attack right
-                else if (this.frameY === 3){
-                    this.setAttack(7,true);
-                    this.moving = false;
-                }
-            }
-            if (this.game.lastkey === 'Rk'){
-                //Finish Attack up
-                if (this.frameY === 0){
-                    this.setAttack(4,false);
-                }
-                //Finish Attack down
-                else if (this.frameY === 2){
-                    this.setAttack(6,false);
-                }
-                //Finish Attack left
-                else if (this.frameY === 1){
-                    this.setAttack(5,false);
-                }
-                //Finish Attack right
-                else if (this.frameY === 3){
-                    this.setAttack(7,false);
-                }
-            }
+        // Animation variables
+        this.frameX = 0;
+        this.frameCounter = 0;
+        this.frameDelay = 5;
 
-            //Moving
+        window.addEventListener("resize", () => this.setPosition());
+    }
 
-            //Move up
-            if(this.game.lastkey === 'w'){
-                this.setSpeed(0, -this.topspeed);
-                this.setFrame(0,true);
-            }
-            //Finish Move up
-            else if(this.game.lastkey === 'Rw'){
-                this.setSpeed(0, 0);
-                this.setFrame(0,false);
-            }
-            //Move down
-            else if(this.game.lastkey === 's'){
-                this.setSpeed(0, this.topspeed);
-                this.setFrame(2,true);
-            }
-            //Finish Move down
-            else if(this.game.lastkey === 'Rs'){
-                this.setSpeed(0, 0);
-                this.setFrame(2,false);
-            }
-            //Move left
-            else if(this.game.lastkey === 'a'){
-                this.setSpeed(-this.topspeed, 0);
-                this.setFrame(1,true);
-            }
-            //Finish Move left
-            else if(this.game.lastkey === 'Ra'){
-                this.setSpeed(0, 0);
-                this.setFrame(1,false);
-            }
-            //Move right
-            else if(this.game.lastkey === 'd'){
-                this.setSpeed(this.topspeed, 0);
-                this.setFrame(3,true);
-            }
-            //Finish Move right
-            else if(this.game.lastkey === 'Rd'){
-                this.setSpeed(0, 0);
-                this.setFrame(3,false);
-            }
-            //Update speed
-            this.x += this.speedX;
-            this.y += this.speedY;
+    updateSprite() {
+        this.sprite = this.sprites[this.currentAnimation];
+        this.width = this.sprite.spriteWidth;
+        this.height = this.sprite.spriteHeight;
+        this.maxFrameX = this.sprite.frameCount;
+    }
 
-            // Check if player is out of bounds X value
-            if (this.x < 0){
-                this.x = 0;
-            }
-            if(this.x > this.game.width-this.width){
-                this.x = this.game.width-this.width;
-            }
+    setPosition() {
+        this.x = window.innerWidth * 0.2;
+        this.y = window.innerHeight * 0.5 - this.height / 2;
+    }
 
-            // Check if player is out of bounds Y value
-            if (this.y < this.topmargin){
-                this.y = this.topmargin;
-            }
-            if(this.y > this.game.height-this.height-100){
-                this.y = this.game.height-this.height-100;
-            }
+    draw(context) {
+        context.drawImage(
+            this.sprite.image,
+            this.frameX * this.sprite.spriteWidth,  
+            0,
+            this.sprite.spriteWidth,
+            this.sprite.spriteHeight,
+            this.x,
+            this.y,
+            this.width,
+            this.height
+        );
 
-            //Movement Animation
-            if(this.frameX < this.maxframeXmove && this.moving){
-                this.frameX++;
-            }
-            else{
+        this.animate();
+    }
+
+    animate() {
+        this.frameCounter++;
+        if (this.frameCounter >= this.frameDelay) {
+            this.frameCounter = 0;
+            this.frameX++;
+
+            // Reset animation if it reaches the last frame
+            if (this.frameX >= this.maxFrameX) {
+                if (this.currentAnimation === "dead") return;
+                if (this.currentAnimation.startsWith("attack")) this.changeAnimation("idle");
+                if (this.currentAnimation === "hurt") this.changeAnimation("idle");
                 this.frameX = 0;
             }
-
-            //Attack Animation
-            if(this.frameXattack < this.maxframeXattack && this.attacking){
-                this.frameXattack++;
-            }
-            else{
-                this.frameXattack = 0;
-            }
-
         }
     }
 
+    changeAnimation(animation) {
+        if (this.currentAnimation !== animation) {
+            this.currentAnimation = animation;
+            this.frameX = 0; // Reset animation
+            this.updateSprite();
+        }
+    }
+
+    attack() {
+        if (!this.turn) return; // Only attack when it's player's turn
+
+        // Randomly choose an attack animation
+        const attacks = ["attack1", "attack2", "attack3"];
+        const randomAttack = attacks[Math.floor(Math.random() * attacks.length)];
+
+        this.changeAnimation(randomAttack);
+    }
+
+    takeDamage(amount) {
+        this.health -= amount;
+
+        if (this.health <= 0) {
+            this.changeAnimation("dead");
+            this.health = 0;
+        } else {
+            this.changeAnimation("hurt");
+        }
+    }
+
+    updateTurn(isPlayerTurn) {
+        this.turn = isPlayerTurn;
+        if (!this.turn) {
+            this.changeAnimation("idle"); // Wait if it's not player's turn
+        }
+    }
+}
